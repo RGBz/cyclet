@@ -20,6 +20,9 @@ A store should only manage state using built-in `set` and `get` methods.
 You should not attach other values to the store object dynamically.
 A store's state is backed by **Immutable.js** and it's recommended that you use **Immutable.js** objects with the store.
 
+React Native components can "listen to" stores via the `Unicyle.listenTo` method.
+When a component is listening to a store, it will automatically re-render itself when the store's state changes.
+
 ##An Example
 
 ``` javascript
