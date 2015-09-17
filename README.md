@@ -18,7 +18,7 @@ Stores contain state and listen to actions.
 When an action is triggered, they have an opportunity to update their internal state.
 A store should only manage state using built-in `set` and `get` methods.
 You should not attach other values to the store object dynamically.
-A store's state is backed by **Immutable.js** and it recommended that all state in the store is an Immutable object.
+A store's state is backed by **Immutable.js** and it recommended that all state in the store follows suit.
 
 **An Example**
 
