@@ -118,6 +118,12 @@ In fact, the `methodName` is entirely optional and should only be used if you wa
 ##Store API
 
 ``` javascript
+init()
+```
+
+This is automatically called when the store is constructed. You cannot call this method on the store after that.
+
+``` javascript
 set(updateDiff: Object, callback: Function)
 ```
 
@@ -139,3 +145,30 @@ notifyListeners()
 ```
 
 If for some reason you need to notify the components listening to a store, you can call this to force it.
+
+**Action Listener Methods**
+You can listen to actions by simply prefixing an action name with a `$` as a property on the object you use to define the store. 
+
+For example:
+``` javascript
+var store = Unicycle.createStore({
+  $actionName: function (arg) {
+    console.log("This action was executed with the argument: ", arg);
+  }
+});
+```
+
+**Custom Methods**
+You can define other methods on the store to expose getters or to simply provide convenience methods that you use internally inside the store. Any property you define when calling `Unicyle.createStore` that doesn't 1) start with a `$` 2) is not `init`, `set`, `get` or `notifyListeners` will automatically become a publicly accessible method on the store.
+
+For example:
+``` javascript
+var store = Unicycle.createStore({
+  init: function () {
+    this.set({title: "Run for your life!"});
+  },
+  getTitle: function () {
+    return this.get('title');
+  }
+});
+```
