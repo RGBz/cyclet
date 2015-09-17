@@ -1,7 +1,7 @@
 # Unicycle
 Simple unidirectional data flow for React Native.
 
-Unicycle is inspired by Facebook's Flux. It is a very simple implementation of a unidirectional data flow that uses **React Native's EventEmitter** and **Immutable.js**. In Unicycle, there are two concepts: **Actions** and **Stores**.
+Unicycle is inspired by Facebook's Flux. It is a very simple implementation of a unidirectional data flow that uses [React Native's](https://facebook.github.io/react-native/) **EventEmitter** and [Immutable.js](https://facebook.github.io/immutable-js/). In Unicycle, there are two concepts: **Actions** and **Stores**.
 
 ## Actions
 Actions are named events that stores can listen to. Unicycle actions are dynamic so you don't define actions ahead of time. Instead, you only refer to them when you execute them or listen to them (via stores).
@@ -18,7 +18,7 @@ Stores contain state and listen to actions.
 When an action is triggered, they have an opportunity to update their internal state.
 A store should only manage state using built-in `set` and `get` methods.
 You should not attach other values to the store object dynamically.
-A store's state is backed by **Immutable.js** and it recommended that all state in the store follows suit.
+A store's state is backed by **Immutable.js** and it's recommended that you use **Immutable.js** objects with the store.
 
 ##An Example
 
