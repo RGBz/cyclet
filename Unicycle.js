@@ -10,7 +10,7 @@ class Store {
             definition.init.bind(this)();
         }
         for (var key in definition) {
-            if (key.indexOf('$') === 0) {
+            if (key[0] === '$') {
                 var actionName = key.substring(1);
                 actionEmitter.addListener(actionName, definition[key].bind(this));
             }
