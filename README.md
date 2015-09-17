@@ -147,6 +147,7 @@ notifyListeners()
 If for some reason you need to notify the components listening to a store, you can call this to force it.
 
 **Action Listener Methods**
+
 You can listen to actions by simply prefixing an action name with a `$` as a property on the object you use to define the store. 
 
 For example:
@@ -159,6 +160,7 @@ var store = Unicycle.createStore({
 ```
 
 **Custom Methods**
+
 You can define other methods on the store to expose getters or to simply provide convenience methods that you use internally inside the store. Any property you define when calling `Unicyle.createStore` that doesn't 1) start with a `$` 2) is not `init`, `set`, `get` or `notifyListeners` will automatically become a publicly accessible method on the store.
 
 For example:
