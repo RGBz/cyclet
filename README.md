@@ -11,7 +11,9 @@ When you execute an action with `Unicycle.exec` you can specify any parameters y
 
 To execute an action, simply call:
 
-    Unicycle.exec('actionName', param1, param2, param3);
+``` javascript
+Unicycle.exec('actionName', param1, param2, param3);
+```
 
 ### Stores
 Stores contain state and listen to actions.
@@ -22,81 +24,92 @@ A store's state is backed by **Immutable.js** and it recommended that all state 
 
 **An Example**
 
-    var React = require('react-native');
-    var {
-      View,
-      Text,
-      TouchableHighlight
-    } = React;
-    var Unicycle = require('./Unicycle');
+``` javascript
+var React = require('react-native');
+var {
+  View,
+  Text,
+  TouchableHighlight
+} = React;
+var Unicycle = require('./Unicycle');
 
-    var personStore = Unicycle.createStore({
-        
-        // The init method is automatically called when the store is constructed
-        init: function () {
-          // Stores come with two built-in methods backed by Immutable.js: "set" and "get"
-          // React components can "listen" on stores.
-          // When you call "set" on a store, all listenining components will be notified
-          this.set({
-            name: 'Claud',
-            age: 82
-          });
-        },
-        
-        // You can easily listen to actions by prefixing their name with a $
-        $updateName: function (newName) {
-          this.set({
-            name: newName
-          });
-        },
-        
-        $increaseAge: function (amount) {
-          this.set({
-            age: this.get('age') + amount
-          });
-        },
-        
-        // You can also define other methods that will be accessible outside your store
-        getAge: function () {
-          return this.get('age');
-        },
-        
-        getName: function () {
-          return this.get('name');
-        }
-        
-    });
+var personStore = Unicycle.createStore({
     
-    var App = React.createClass({
+    // The init method is automatically called when the store is constructed
+    init: function () {
+      // Stores come with two built-in methods backed by Immutable.js: "set" and "get"
+      // React components can "listen" on stores.
+      // When you call "set" on a store, all listenining components will be notified
+      this.set({
+        name: 'Claud',
+        age: 82
+      });
+    },
     
-      mixins: [
-        Unicycle.listenTo(personStore)
-      ],
-      
-      render: function () {
-        return (
-          <View>
-            <Text>{personStore.getName() " is " + personStore.getAge()}</Text>
-            <TouchableHighlight onPress={() => Unicyle.exec('updateName', 'Doug')}>
-              <Text>Change Name</Text>
-            </TouchableHighlight>
-          </View>
-        );
-      }
+    // You can easily listen to actions by prefixing their name with a $
+    $updateName: function (newName) {
+      this.set({
+        name: newName
+      });
+    },
     
-    });
+    $increaseAge: function (amount) {
+      this.set({
+        age: this.get('age') + amount
+      });
+    },
+    
+    // You can also define other methods that will be accessible outside your store
+    getAge: function () {
+      return this.get('age');
+    },
+    
+    getName: function () {
+      return this.get('name');
+    }
+    
+});
+
+var App = React.createClass({
+
+  mixins: [
+    Unicycle.listenTo(personStore)
+  ],
+  
+  render: function () {
+    return (
+      <View>
+        <Text>{personStore.getName() " is " + personStore.getAge()}</Text>
+        <TouchableHighlight onPress={() => Unicyle.exec('updateName', 'Doug')}>
+          <Text>Change Name</Text>
+        </TouchableHighlight>
+      </View>
+    );
+  }
+
+});
+```
 
 # API
 
 ##Unicycle API
 
-**createStore(storeDefinition: Object)**
+``` javascript
+Unicycle.createStore(storeDefinition: Object)
+```
+
 This method is used to create a store. Refer to the example above for details.
 
-**Unicycle.exec(actionName: String, ...params)**
+``` TypeScript
+Unicycle.exec(actionName: String, ...params);
+```
+
 This method executes an action by its name. Any stores listening on the action will be passed the params specified.
 
-**Unicycle.listenTo(store: Store, methodName: String)**
+```javascript
+Unicycle.listenTo(store: Store, methodName: String)
+```
+
 This method constructs a mixin that you can add to a React Native component.
 Whenever the state of the store changes, the method whose name matches `methodName` on the component will be called.
 When this method is called, **it will not be passed any data**.
@@ -106,7 +119,10 @@ In fact, the `methodName` is entirely optional and should only be used if you wa
 
 ##Store API
 
-**set(updateDiff: Object, callback: Function)**
+``` javascript
+set(updateDiff: Object, callback: Function)
+```
+
 This method is similar to React's `setState` in that it merges the `updateDiff` argument into the existing state of the store.
 You should never call `set` from outside a store. It should only be called at `init` time or in response to an action.
 
@@ -114,8 +130,14 @@ Calling `set` automatically notifies any listening components of the store's sta
 
 The `callback` is optional and will simply be called after the store's state changes. This is useful if you want to do things like persistence from the store after its state changes.
 
-**get(propertyName: String)**
+``` javascript
+get(propertyName: String)
+```
+
 This method simply returns the value of the store's state for this property name.
 
-**notifyListeners()**
+``` javascript
+notifyListeners()
+```
+
 If for some reason you need to notify the components listening to a store, you can call this to force it.
