@@ -36,10 +36,10 @@ A store's state is backed by **Immutable.js** and it recommended that all state 
         init: function () {
           // Stores come with two built-in methods backed by Immutable.js: "set" and "get"
           // React components can "listen" on stores.
-          // When you call "set" on a store, all listenining components will automatically be notified
+          // When you call "set" on a store, all listenining components will be notified
           this.set({
-            name: 'dog',
-            age: 1
+            name: 'Claud',
+            age: 82
           });
         },
         
@@ -59,6 +59,10 @@ A store's state is backed by **Immutable.js** and it recommended that all state 
         // You can also define other methods that will be accessible outside your store
         getAge: function () {
           return this.get('age');
+        },
+        
+        getName: function () {
+          return this.get('name');
         }
         
     });
@@ -98,6 +102,8 @@ Whenever the state of the store changes, the method whose name matches `methodNa
 When this method is called, **it will not be passed any data**.
 Instead, you should retrieve the data from the store through the custom methods you define on the store.
 
+In fact, the `methodName` is entirely optional and should only be used if you want to do something special when the store's state changes. Otherwise you can just let the component re-render itself using the store's updated state.
+
 ##Store API
 
 **set(updateDiff: Object, callback: Function)**
@@ -106,8 +112,10 @@ You should never call `set` from outside a store. It should only be called at `i
 
 Calling `set` automatically notifies any listening components of the store's state change.
 
+The `callback` is optional and will simply be called after the store's state changes. This is useful if you want to do things like persistence from the store after its state changes.
+
 **get(propertyName: String)**
 This method simply returns the value of the store's state for this property name.
 
 **notifyListeners()**
-If for some reason you need to notify the components listening to a store
+If for some reason you need to notify the components listening to a store, you can call this to force it.
