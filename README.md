@@ -80,7 +80,7 @@ var App = React.createClass({
   render: function () {
     return (
       <View>
-        <Text>{personStore.getName() " is " + personStore.getAge()}</Text>
+        <Text>{personStore.getName() + " is " + personStore.getAge()}</Text>
         <TouchableHighlight onPress={() => Unicyle.exec('updateName', 'Doug')}>
           <Text>Change Name</Text>
         </TouchableHighlight>
