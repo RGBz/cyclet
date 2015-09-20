@@ -1,29 +1,20 @@
-# Unicycle
+# Cyclet
 Simple unidirectional data flow for React Native.
 
-Unicycle is inspired by Facebook's Flux. It is a very simple implementation of a unidirectional data flow that uses [React Native's](https://facebook.github.io/react-native/) **EventEmitter** and [Immutable.js](https://facebook.github.io/immutable-js/). In Unicycle, there are two concepts: **Actions** and **Stores**.
+Cyclet is inspired by Facebook's [Flux](https://facebook.github.io/flux/). It is a very simple implementation of a unidirectional data flow that uses [React Native's](https://facebook.github.io/react-native/) **EventEmitter** and [Immutable.js](https://facebook.github.io/immutable-js/).
 
-## Actions
-Actions are named events that stores can listen to. Unicycle actions are dynamic so you don't define actions ahead of time. Instead, you only refer to them when you execute them or listen to them (via stores).
-When you execute an action with `Unicycle.exec` you can specify any parameters you like. These parameters will be passed along to any listeners of the action being executed.
+**What problem does this solve?**
+Applications can get complex quickly. Cyclet helps make application development easier by forcing all data changes in your app to follow a simple predictable pattern:
+1. Tell your client-side datastores about a change you want to happen
+2. Each datastore updates itself based on the update you're broadcasting
+3. React components re-render automatically as the datastores finish updating
 
-For example, to execute an action, simply call:
+**Actions and Stores**
+Cyclet uses two simple concepts to pull this off: **Actions** and **Stores**. Actions represent the change you want to happen and Stores are simply the datastores that update themselves when they're told about the change you want to happen.
 
-``` javascript
-Unicycle.exec('actionName', param1, param2, param3);
-```
+## A simple example
 
-## Stores
-Stores contain state and listen to actions.
-When an action is triggered, they have an opportunity to update their internal state.
-A store should only manage state using built-in `set` and `get` methods.
-You should not attach other values to the store object dynamically.
-A store's state is backed by **Immutable.js** and it's recommended that you use **Immutable.js** objects with the store.
-
-React Native components can "listen to" stores via the `Unicyle.listenTo` method.
-When a component is listening to a store, it will automatically re-render itself when the store's state changes.
-
-##An Example
+Read through this example and its comments to see how to use Cyclet.
 
 ``` javascript
 var React = require('react-native');
@@ -32,58 +23,72 @@ var {
   Text,
   TouchableHighlight
 } = React;
-var Unicycle = require('./Unicycle');
+var Cyclet = require('cyclet');
 
-var personStore = Unicycle.createStore({
-    
+// First let's create a trivial store to hold data about a person
+var personStore = Cyclet.createStore({
+
     // The init method is automatically called when the store is constructed
     init: function () {
       // Stores come with two built-in methods backed by Immutable.js: "set" and "get"
-      // React components can "listen" on stores.
-      // When you call "set" on a store, all listenining components will be notified
+      // When you call "set" on a store, all listening React components will be re-rendered
       this.set({
         name: 'Claud',
         age: 82
       });
     },
-    
-    // You can easily listen to actions by prefixing their name with a $
+
+    // All action names start with a "$". To have a store listen to an action,
+    // simply put the action name as a property when creating the store.
     $updateName: function (newName) {
       this.set({
         name: newName
       });
     },
-    
+
     $increaseAge: function (amount) {
       this.set({
         age: this.get('age') + amount
       });
     },
-    
-    // You can also define other methods that will be accessible outside your store
+
+    // You can also define other methods that will be accessible to React components outside your store
     getAge: function () {
       return this.get('age');
     },
-    
+
     getName: function () {
       return this.get('name');
     }
-    
+
 });
 
-var App = React.createClass({
+var PersonView = React.createClass({
 
-  mixins: [
-    Unicycle.listenTo(personStore)
+  mixins: [      
+      // This component will automatically re-render whenever "set" or "notifyListeners"
+      // is called on the personStore
+      personStore.tell()
   ],
-  
+
   render: function () {
     return (
       <View>
-        <Text>{personStore.getName() + " is " + personStore.getAge()}</Text>
-        <TouchableHighlight onPress={() => Unicyle.exec('updateName', 'Doug')}>
+
+        <Text>
+            {personStore.getName() + " is " + personStore.getAge()}
+        </Text>
+
+        {
+            // Whenever this link is pressed, the $updateName action
+            // is kicked off with 'Doug' as its only parameter.
+            // Cyclet uses the new ES6 Proxy so you don't need to define actions ahead of time,
+            // you just call them as functions right off the bat
+        }
+        <TouchableHighlight onPress={() => Cyclet.$updateName('Doug')}>
           <Text>Change Name</Text>
         </TouchableHighlight>
+
       </View>
     );
   }
@@ -91,89 +96,40 @@ var App = React.createClass({
 });
 ```
 
-# API
+## Best practices
 
-##Unicycle API
+**Directory structure**
+Create separate files for each store and put them in a directory called "stores" in your project.
 
-``` javascript
-Unicycle.createStore(storeDefinition: Object)
-```
+**Actions**
+It's best to always start your action names off with verbs. For example `$updateUser`, `$fetchCompany`, `$playSong`. When you kick-off an action you can pass as many arguments as you like to inform the necessary data change, but it's recommended that you use as few parameters as possible so you don't get confused by argument ordering. Some actions might not even need and arguments at all. For example, `$logout`.
 
-This method is used to create a store. Refer to the example above for details.
+**Stores**
+Store design is the trickiest part of coding a solid and comprehensible application. Each store should be focused on a certain kind of data. Good stores could be things like `userStore` to hold onto user data or `bookStore` to hold onto book data. Stores can also be used to cache data. For example, a `userStore` might hold cached copies of multiple users and you can define a `userStore.getUserById(userId)` method to pull a user out of the cache.
 
-``` TypeScript
-Unicycle.exec(actionName: String, ...params);
-```
+## API
 
-This method executes an action by its name. Any stores listening on the action will be passed the params specified.
+**Cyclet**
 
-```javascript
-Unicycle.listenTo(store: Store, methodName: String)
-```
+`createStore(storeDefinition)`
+The storeDefinition paramater is an object. This object is used to define the store. It can contain the following kinds of proprties:
+- `init` A function that gets called immediately after the store is constructed. This can be used to instantiate data for the store.
+- `$actionNameGoesHere` Each action name you set as a property should have a function value that's used to handle how the store should behave when the action is kicked-off. The arguments to this function should follow the order of the arguments passed when the action is called.
+- The final type of properties on a store are public functions. Any property you define that's not `init` or an action name will become accessible outside the store. This is how you can define getter methods that your React components should use to render the data from the store.
 
-This method constructs a mixin that you can add to a React Native component.
-Whenever the state of the store changes, the method whose name matches `methodName` on the component will be called.
-When this method is called, **it will not be passed any data**.
-Instead, you should retrieve the data from the store through the custom methods you define on the store.
+`$actionNameGoesHere(...actionArguments)`
+Calling `Cyclet.$fetchUser(123)` will kick-off the `$fetchUser` action and pass `123` as an argument to all listening stores. You **do not** need to define actions ahead of time. Instead you just call them dynamically off the `Cyclet` object (this uses ES6 Proxy magic to pull it off).
 
-In fact, the `methodName` is entirely optional and should only be used if you want to do something special when the store's state changes. Otherwise you can just let the component re-render itself using the store's updated state.
+**Store**
 
-##Store API
+`get(propertyName)`
+Stores contain a private state object using Immutable.js. To access a property off this internal state object, you can use this `get` method along with the name of the property you want to access. You **should not** call this method from outside the store. Instead, create public methods on the store that your components can use.
 
-``` javascript
-init()
-```
+`set(updateDiff)`
+Stores can also update this internal state object using `set`. Set actually calls Immutable.js's `merge` on the internal state object using the `updateDiff` object to merge in the data from `updateDiff`. When `set` is called, all components listening on the store will automatically be notified to re-render.
 
-This is automatically called when the store is constructed. You cannot call this method on the store after that.
+`tell(methodName)`
+Tell is used to create a React mixin that a React component can listen on. If the optional `methodName` string is specified, the method on the React component with that matching name will be called. This gives to an opportunity to do custom handling of state changes on your React component. If `methodName` is not specified, all changes will trigger automatic re-renders via React's `forceUpdate()` method on the component.
 
-``` javascript
-set(updateDiff: Object, callback: Function)
-```
-
-This method is similar to React's `setState` in that it merges the `updateDiff` argument into the existing state of the store.
-You should never call `set` from outside a store. It should only be called at `init` time or in response to an action.
-
-Calling `set` automatically notifies any listening components of the store's state change.
-
-The `callback` is optional and will simply be called after the store's state changes. This is useful if you want to do things like persistence from the store after its state changes.
-
-``` javascript
-get(propertyName: String)
-```
-
-This method simply returns the value of the store's state for this property name.
-
-``` javascript
-notifyListeners()
-```
-
-If for some reason you need to notify the components listening to a store, you can call this to force it.
-
-**Action Listener Methods**
-
-You can listen to actions by simply prefixing an action name with a `$` as a property on the object you use to define the store. 
-
-For example:
-``` javascript
-var store = Unicycle.createStore({
-  $actionName: function (arg) {
-    console.log("This action was executed with the argument: ", arg);
-  }
-});
-```
-
-**Custom Methods**
-
-You can define other methods on the store to expose getters or to simply provide convenience methods that you use internally inside the store. Any property you define when calling `Unicyle.createStore` that doesn't 1) start with a `$` 2) is not `init`, `set`, `get` or `notifyListeners` will automatically become a publicly accessible method on the store.
-
-For example:
-``` javascript
-var store = Unicycle.createStore({
-  init: function () {
-    this.set({title: "Run for your life!"});
-  },
-  getTitle: function () {
-    return this.get('title');
-  }
-});
-```
+`notifyListeners()`
+You shouldn't mutate data on a store outside of calling `set`, but if for some crazy reason you need to, you can use `notifyListeners` to tell the listening React components to handle a change.
