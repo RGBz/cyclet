@@ -145,7 +145,7 @@ Stores can also update this internal state object using `set`. Set actually call
 
 `tell(methodName)`
 
-Tell is used to create a React mixin that a React component can listen on. If the optional `methodName` string is specified, the method on the React component with that matching name will be called. This gives to an opportunity to do custom handling of state changes on your React component. If `methodName` is not specified, all changes will trigger automatic re-renders via React's `forceUpdate()` method on the component.
+Tell is used to create a React mixin that a React component can listen on. If the optional `methodName` string is specified, the method on the React component with that matching name will be called. This gives the component an opportunity to do custom handling of state changes. If `methodName` is not specified, all changes will trigger automatic re-renders via React's `forceUpdate()` method on the component.
 
 `notifyListeners()`
 
