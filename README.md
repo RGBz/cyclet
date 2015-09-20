@@ -122,6 +122,7 @@ Store design is the trickiest part of coding a solid and comprehensible applicat
 **Cyclet**
 
 `createStore(storeDefinition)`
+
 The storeDefinition paramater is an object. This object is used to define the store. It can contain the following kinds of proprties:
 
 - `init` A function that gets called immediately after the store is constructed. This can be used to instantiate data for the store.
@@ -129,18 +130,23 @@ The storeDefinition paramater is an object. This object is used to define the st
 - The final type of properties on a store are public functions. Any property you define that's not `init` or an action name will become accessible outside the store. This is how you can define getter methods that your React components should use to render the data from the store.
 
 `$actionNameGoesHere(...actionArguments)`
+
 Calling `Cyclet.$fetchUser(123)` will kick-off the `$fetchUser` action and pass `123` as an argument to all listening stores. You **do not** need to define actions ahead of time. Instead you just call them dynamically off the `Cyclet` object (this uses ES6 Proxy magic to pull it off).
 
 **Store**
 
 `get(propertyName)`
+
 Stores contain a private state object using Immutable.js. To access a property off this internal state object, you can use this `get` method along with the name of the property you want to access. You **should not** call this method from outside the store. Instead, create public methods on the store that your components can use.
 
 `set(updateDiff)`
+
 Stores can also update this internal state object using `set`. Set actually calls Immutable.js's `merge` on the internal state object using the `updateDiff` object to merge in the data from `updateDiff`. When `set` is called, all components listening on the store will automatically be notified to re-render.
 
 `tell(methodName)`
+
 Tell is used to create a React mixin that a React component can listen on. If the optional `methodName` string is specified, the method on the React component with that matching name will be called. This gives to an opportunity to do custom handling of state changes on your React component. If `methodName` is not specified, all changes will trigger automatic re-renders via React's `forceUpdate()` method on the component.
 
 `notifyListeners()`
+
 You shouldn't mutate data on a store outside of calling `set`, but if for some crazy reason you need to, you can use `notifyListeners` to tell the listening React components to handle a change.
