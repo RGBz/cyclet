@@ -17,6 +17,7 @@ class Store {
         this[stateKey] = Immutable.fromJS({});
         for (var key in definition) {
             if (key[0] === '$') {
+                var actionName = key.substring(1);
                 actionEmitter.addListener(actionName, definition[key].bind(this));
             }
             else if (key !== 'init') {
@@ -82,13 +83,16 @@ var CycletHandler = {
 
 };
 
-var Cyclet = new Proxy(
-    {
-        createStore(definition) {
-            return new Store(definition);
-        }
+var Cyclet {
+
+    createStore(definition) {
+        return new Store(definition);
     },
-    CycletHandler
-);
+
+    exec() {
+        actionEmitter.emit(...arguments);
+    }
+
+};
 
 module.exports = Cyclet;

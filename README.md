@@ -44,8 +44,8 @@ var personStore = Cyclet.createStore({
       });
     },
 
-    // All action names start with a "$". To have a store listen to an action,
-    // simply put the action name as a property when creating the store.
+    // To have a store listen to an action, simply put the action name with a $
+    // before it as a property when creating the store.
     $updateName: function (newName) {
       this.set({
         name: newName
@@ -87,12 +87,10 @@ var PersonView = React.createClass({
         </Text>
 
         {
-            // Whenever this link is pressed, the $updateName action
-            // is kicked off with 'Doug' as its only parameter.
-            // Cyclet uses the new ES6 Proxy so you don't need to define actions
-            // ahead of time, you just call them as functions right off the bat
+            // Whenever this link is pressed, the "updateName" action
+            // is kicked off with 'Doug' as its only parameter.            
         }
-        <TouchableHighlight onPress={() => Cyclet.$updateName('Doug')}>
+        <TouchableHighlight onPress={() => Cyclet.exec('updateName', 'Doug')}>
           <Text>Change Name</Text>
         </TouchableHighlight>
 
@@ -111,11 +109,13 @@ Create separate files for each store and put them in a directory called "stores"
 
 **Actions**
 
-It's best to always start your action names off with verbs. For example `$updateUser`, `$fetchCompany`, `$playSong`. When you kick-off an action you can pass as many arguments as you like to inform the necessary data change, but it's recommended that you use as few parameters as possible so you don't get confused by argument ordering. Some actions might not even need and arguments at all. For example, `$logout`.
+It's best to always start your action names off with verbs. For example `updateUser`, `fetchCompany`, `playSong`. When you kick-off an action you can pass as many arguments as you like to inform the necessary data change, but it's recommended that you use as few parameters as possible so you don't get confused by argument ordering. Some actions might not even need and arguments at all. For example, `logout`.
 
 **Stores**
 
 Store design is the trickiest part of coding a solid and comprehensible application. Each store should be focused on a certain kind of data. Good stores could be things like `userStore` to hold onto user data or `bookStore` to hold onto book data. Stores can also be used to cache data. For example, a `userStore` might hold cached copies of multiple users and you can define a `userStore.getUserById(userId)` method to pull a user out of the cache.
+
+It is highly recommended that you exclusively use Immutable.js objects when putting things in a store. Immutable objects make your code very easy to reason about and guarantee that there's no data meddling outside of the standard Cyclet data flow.
 
 ## API
 
@@ -126,12 +126,12 @@ Store design is the trickiest part of coding a solid and comprehensible applicat
 The storeDefinition paramater is an object. This object is used to define the store. It can contain the following kinds of proprties:
 
 - `init` A function that gets called immediately after the store is constructed. This can be used to instantiate data for the store.
-- `$actionNameGoesHere` Each action name you set as a property should have a function value that's used to handle how the store should behave when the action is kicked-off. The arguments to this function should follow the order of the arguments passed when the action is called.
+- `$actionNameGoesHere` Each action name (prefixed with a `$`) you set as a property should have a function value that's used to handle how the store should behave when the action is kicked-off. The arguments to this function should follow the order of the arguments passed when the action is called. Action listeners must be prefixed with a `$`!
 - The final type of properties on a store are public functions. Any property you define that's not `init` or an action name will become accessible outside the store. This is how you can define getter methods that your React components should use to render the data from the store.
 
-`$actionNameGoesHere(...actionArguments)`
+`exec(actionName, ...actionArguments)`
 
-Calling `Cyclet.$fetchUser(123)` will kick-off the `$fetchUser` action and pass `123` as an argument to all listening stores. You **do not** need to define actions ahead of time. Instead you just call them dynamically off the `Cyclet` object (this uses ES6 Proxy magic to pull it off).
+Calling `Cyclet.exec('fetchUser', 123)` will kick-off the `fetchUser` action and pass `123` as an argument to all listening stores. You **do not** need to define actions ahead of time. Instead you just call them dynamically when you want to use them.
 
 **Store**
 
