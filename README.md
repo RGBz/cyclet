@@ -33,8 +33,11 @@ var personStore = Cyclet.createStore({
 
     // The init method is automatically called when the store is constructed
     init: function () {
-      // Stores come with two built-in methods backed by Immutable.js: "set" and "get"
-      // When you call "set" on a store, all listening React components will be re-rendered
+      // Stores come with two built-in methods backed by Immutable.js:
+      // "set" and "get"
+
+      // When you call "set" on a store, all listening React components will
+      // be re-rendered
       this.set({
         name: 'Claud',
         age: 82
@@ -55,7 +58,8 @@ var personStore = Cyclet.createStore({
       });
     },
 
-    // You can also define other methods that will be accessible to React components outside your store
+    // You can also define other methods that will be accessible to React
+    // components outside your store
     getAge: function () {
       return this.get('age');
     },
@@ -69,8 +73,8 @@ var personStore = Cyclet.createStore({
 var PersonView = React.createClass({
 
   mixins: [      
-      // This component will automatically re-render whenever "set" or "notifyListeners"
-      // is called on the personStore
+      // This component will automatically re-render whenever "set" or
+      // "notifyListeners" is called on the personStore
       personStore.tell()
   ],
 
@@ -85,8 +89,8 @@ var PersonView = React.createClass({
         {
             // Whenever this link is pressed, the $updateName action
             // is kicked off with 'Doug' as its only parameter.
-            // Cyclet uses the new ES6 Proxy so you don't need to define actions ahead of time,
-            // you just call them as functions right off the bat
+            // Cyclet uses the new ES6 Proxy so you don't need to define actions
+            // ahead of time, you just call them as functions right off the bat
         }
         <TouchableHighlight onPress={() => Cyclet.$updateName('Doug')}>
           <Text>Change Name</Text>
