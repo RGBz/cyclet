@@ -26,5 +26,8 @@
   "bugs": {
     "url": "https://github.com/RGBz/cyclet/issues"
   },
-  "homepage": "https://github.com/RGBz/cyclet#readme"
+  "homepage": "https://github.com/RGBz/cyclet#readme",
+  "dependencies": {
+    "immutable": "^3.7.5"
+  }
 }
