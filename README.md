@@ -6,6 +6,7 @@ Cyclet is inspired by Facebook's [Flux](https://facebook.github.io/flux/). It is
 **What problem does this solve?**
 
 Applications can get complex quickly. Cyclet helps make application development easier by forcing all data changes in your app to follow a simple predictable pattern:
+
 1. Tell your client-side datastores about a change you want to happen
 2. Each datastore updates itself based on the update you're broadcasting
 3. React components re-render automatically as the datastores finish updating
@@ -118,6 +119,7 @@ Store design is the trickiest part of coding a solid and comprehensible applicat
 
 `createStore(storeDefinition)`
 The storeDefinition paramater is an object. This object is used to define the store. It can contain the following kinds of proprties:
+
 - `init` A function that gets called immediately after the store is constructed. This can be used to instantiate data for the store.
 - `$actionNameGoesHere` Each action name you set as a property should have a function value that's used to handle how the store should behave when the action is kicked-off. The arguments to this function should follow the order of the arguments passed when the action is called.
 - The final type of properties on a store are public functions. Any property you define that's not `init` or an action name will become accessible outside the store. This is how you can define getter methods that your React components should use to render the data from the store.
