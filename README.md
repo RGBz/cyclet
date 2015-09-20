@@ -2,7 +2,7 @@ Simple unidirectional data flow for React Native.
 
 Cyclet is inspired by Facebook's [Flux](https://facebook.github.io/flux/). It is a very simple implementation of a unidirectional data flow that uses [React Native's](https://facebook.github.io/react-native/) **EventEmitter** and [Immutable.js](https://facebook.github.io/immutable-js/).
 
-##What problem does this solve?
+**What problem does this solve?**
 
 Applications can get complex quickly. Cyclet helps make application development easier by forcing all data changes in your app to follow a simple predictable pattern:
 
@@ -10,11 +10,12 @@ Applications can get complex quickly. Cyclet helps make application development 
 2. Each datastore updates itself based on the update you're broadcasting
 3. React components re-render automatically as the datastores finish updating
 
-##Actions and Stores**
+
+**Actions and Stores**
 
 Cyclet uses two simple concepts to pull this off: **Actions** and **Stores**. Actions represent the change you want to happen and Stores are simply the datastores that update themselves when they're told about the change you want to happen.
 
-# A simple example
+## A simple example
 
 Read through this example and its comments to see how to use Cyclet.
 
@@ -100,25 +101,25 @@ var PersonView = React.createClass({
 });
 ```
 
-# Best practices
+## Best practices
 
-##Directory structure
+**Directory structure**
 
 Create separate files for each store and put them in a directory called "stores" in your project.
 
-##Actions
+**Actions**
 
 It's best to always start your action names off with verbs. For example `updateUser`, `fetchCompany`, `playSong`. When you kick-off an action you can pass as many arguments as you like to inform the necessary data change, but it's recommended that you use as few parameters as possible so you don't get confused by argument ordering. Some actions might not even need and arguments at all. For example, `logout`.
 
-##Stores
+**Stores**
 
 Store design is the trickiest part of coding a solid and comprehensible application. Each store should be focused on a certain kind of data. Good stores could be things like `userStore` to hold onto user data or `bookStore` to hold onto book data. Stores can also be used to cache data. For example, a `userStore` might hold cached copies of multiple users and you can define a `userStore.getUserById(userId)` method to pull a user out of the cache.
 
 It is highly recommended that you exclusively use Immutable.js objects when putting things in a store. Immutable objects make your code very easy to reason about and guarantee that there's no data meddling outside of the standard Cyclet data flow.
 
-# API
+## API
 
-##Cyclet
+**Cyclet**
 
 `createStore(storeDefinition)`
 
@@ -132,7 +133,7 @@ The storeDefinition paramater is an object. This object is used to define the st
 
 Calling `Cyclet.exec('fetchUser', 123)` will kick-off the `fetchUser` action and pass `123` as an argument to all listening stores. You **do not** need to define actions ahead of time. Instead you just call them dynamically when you want to use them.
 
-##Store
+**Store**
 
 `get(propertyName)`
 
