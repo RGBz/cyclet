@@ -83,7 +83,7 @@ var CycletHandler = {
 
 };
 
-var Cyclet {
+var Cyclet = {
 
     createStore(definition) {
         return new Store(definition);
