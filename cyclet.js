@@ -1,12 +1,12 @@
-var EventEmitter = require('EventEmitter');
+var {EventEmitter} = require('fbemitter');
 var Immutable = require('immutable');
 
 var onStoreUpdate = function () {
     this.forceUpdate();
 };
 
-var updateEmitterKey = Symbol('updateEmitter');
-var stateKey = Symbol('state');
+var updateEmitterKey = '_updateEmitter';
+var stateKey = '_state';
 
 var actionEmitter = new EventEmitter();
 
