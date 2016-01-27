@@ -1,24 +1,32 @@
-var {EventEmitter} = require('fbemitter');
-var Immutable = require('immutable');
+import React, { Component } from 'react-native';
+import {EventEmitter} from 'fbemitter';
+import Immutable from 'immutable';
+import shallowequal from 'shallowequal';
 
-var onStoreUpdate = function () {
+const onStoreUpdate = function () {
     this.forceUpdate();
 };
 
-var updateEmitterKey = '_updateEmitter';
-var stateKey = '_state';
+const STORE_UPDATE_EMITTER_PRIVATE_KEY = Symbol();
+const STORE_STATE_PRIVATE_KEY = Symbol();
+const SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY = Symbol();
+const STORE_UPDATE_EVENT_KEY = Symbol();
 
-var actionEmitter = new EventEmitter();
+const actionEmitter = new EventEmitter();
 
 class Store {
 
     constructor(definition) {
-        this[updateEmitterKey] = new EventEmitter();
-        this[stateKey] = Immutable.fromJS({});
-        for (var key in definition) {
+        this[STORE_UPDATE_EMITTER_PRIVATE_KEY] = new EventEmitter();
+        this[STORE_STATE_PRIVATE_KEY] = Immutable.fromJS({});
+        this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY] = Immutable.fromJS({});
+        for (let key in definition) {
             if (key[0] === '$') {
-                var actionName = key.substring(1);
-                actionEmitter.addListener(actionName, definition[key].bind(this));
+                const actionName = key.substring(1);
+                actionEmitter.addListener(
+                    actionName,
+                    definition[key].bind(this)
+                );
             }
             else if (key !== 'init') {
                 this[key] = definition[key].bind(this);
@@ -30,13 +38,18 @@ class Store {
     }
 
     tell(methodName) {
-        var store = this;
-        var subscription;
-        var mixin = {
+        const store = this;
+        let subscription;
+        return {
 
             componentDidMount() {
-                var listener = methodName ? this[methodName] : onStoreUpdate.bind(this);
-                subscription = store[updateEmitterKey].addListener('update', listener);
+                const listener = methodName ?
+                    this[methodName] :
+                    onStoreUpdate.bind(this);
+                subscription = store[STORE_UPDATE_EMITTER_PRIVATE_KEY].addListener(
+                    STORE_UPDATE_EVENT_KEY,
+                    listener
+                );
             },
 
             componentWillUnmount() {
@@ -44,15 +57,36 @@ class Store {
             }
 
         };
-        return mixin;
+    }
+
+    addListener(listener) {
+        this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].set(
+            listener,
+            this[STORE_UPDATE_EMITTER_PRIVATE_KEY].addListener(
+                STORE_UPDATE_EVENT_KEY,
+                listener
+            )
+        );
+    }
+
+    removeListener(listener) {
+        let subscription = this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].get(
+            listener
+        );
+        if (subscription) {
+            subscription.remove();
+            this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].delete(listener);
+        }
     }
 
     get(key) {
-        return this[stateKey].get(key);
+        return this[STORE_STATE_PRIVATE_KEY].get(key);
     }
 
     set(updateDiff, callback) {
-        this[stateKey] = this[stateKey].merge(updateDiff);
+        this[STORE_STATE_PRIVATE_KEY] = this[STORE_STATE_PRIVATE_KEY].merge(
+            updateDiff
+        );
         this.notifyListeners();
         if (callback) {
             callback();
@@ -60,39 +94,70 @@ class Store {
     }
 
     clear() {
-        this[stateKey] = Immutable.fromJS({});
+        this[STORE_STATE_PRIVATE_KEY] = Immutable.fromJS({});
         this.notifyListeners();
     }
 
     notifyListeners() {
-        this[updateEmitterKey].emit('update');
+        this[STORE_UPDATE_EMITTER_PRIVATE_KEY].emit(STORE_UPDATE_EVENT_KEY);
     }
 
 }
 
-var CycletHandler = {
+export default class Cyclet {
 
-    get(target, actionName) {
-        if (actionName[0] === '$' && !(actionName in target)) {
-            target[actionName] = function () {
-                actionEmitter.emit(actionName, ...arguments);
-            };
-        }
-        return target[actionName];
+    static createStore(definition) {
+        return new Store(definition);
     }
 
-};
-
-var Cyclet = {
-
-    createStore(definition) {
-        return new Store(definition);
-    },
-
-    exec() {
+    static exec() {
         actionEmitter.emit(...arguments);
     }
 
-};
+    static connectToStores(Component, stores, getStateFromStores) {
+        return class StoreConnectionWrapper extends React.Component {
+
+            constructor(props) {
+                super(props);
+                this._handleStateChange = this._handleStateChange.bind(this);
+                this.state = getStateFromStores(props);
+            }
+
+            componentDidMount() {
+                stores.forEach(store =>
+                    store.addListener(this._handleStateChange)
+                );
+            }
+
+            componentWillReceiveProps(nextProps) {
+                if (!shallowequal(nextProps, this.props)) {
+                    this.setState(getStateFromStores(nextProps));
+                }
+            }
+
+            componentWillUnmount() {
+                stores.forEach(store =>
+                    store.removeListener(this._handleStateChange)
+                );
+            }
+
+            _handleStateChange() {
+                this.setState(getStateFromStores(this.props));
+            }
+
+            render() {
+                let props = {};
+                for (let key in this.props) {
+                    props[key] = this.props[key];
+                }
+                for (let key in this.state) {
+                    props[key] = this.state[key];
+                }
+                return React.createElement(Component, props);
+            }
+        }
+    }
+
+}
 
 module.exports = Cyclet;
