@@ -10,6 +10,7 @@ Applications can get complex quickly. Cyclet helps make application development 
 2. Each datastore updates itself based on the update you're broadcasting
 3. React components re-render automatically as the datastores finish updating
 
+
 ***UPDATE NOTE (Cyclet 1.2 & ES6):***
 If you're already using Cyclet, you might notice that this README doesn't look familiar. That's because Cyclet has been updated to be based on composition instead of React Mixins to play better with ES6 classes. Not to worry though! **Cyclet 1.2 is fully backwards compatible with 1.1**. It is recommended that you use the new approach outlined in this updated README going forward, but here are the [Cyclet 1.1 docs](Cyclet-1.1.md) for reference.
 
@@ -145,6 +146,7 @@ It is highly recommended that you exclusively use **Immutable.js** objects when 
 
 ### Cyclet
 
+
 #### `createStore(storeDefinition)`
 
 The storeDefinition paramater is an object. This object is used to define the store. It can contain the following kinds of proprties:
@@ -164,6 +166,7 @@ that listens on the list of passed-in `stores`. When any of the `stores` changes
 the passed-in `getStateFromStores` function is called and passed the `reactComponent`'s most recent set of props. The `getStateFromStores` function **must** return a map to be used as the updated set of props to pass to the `reactComponent` to trigger a re-render.
 
 ### Store
+
 
 #### `get(propertyName)`
 
