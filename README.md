@@ -143,7 +143,7 @@ It is highly recommended that you exclusively use **Immutable.js** objects when 
 
 ## API
 
-## Cyclet
+### Cyclet
 
 #### `createStore(storeDefinition)`
 
