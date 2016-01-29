@@ -60,7 +60,7 @@ class Store {
     }
 
     addListener(listener) {
-        this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].set(
+        this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY] = this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].set(
             listener,
             this[STORE_UPDATE_EMITTER_PRIVATE_KEY].addListener(
                 STORE_UPDATE_EVENT_KEY,
@@ -75,7 +75,7 @@ class Store {
         );
         if (subscription) {
             subscription.remove();
-            this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].delete(listener);
+            this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY] = this[SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY].delete(listener);
         }
     }
 
