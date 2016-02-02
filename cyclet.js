@@ -7,10 +7,10 @@ const onStoreUpdate = function () {
     this.forceUpdate();
 };
 
-const STORE_UPDATE_EMITTER_PRIVATE_KEY = Symbol();
-const STORE_STATE_PRIVATE_KEY = Symbol();
-const SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY = Symbol();
-const STORE_UPDATE_EVENT_KEY = Symbol();
+const STORE_UPDATE_EMITTER_PRIVATE_KEY = '_updateEmitter';
+const STORE_STATE_PRIVATE_KEY = '_state';
+const SUBSCRIPTIONS_BY_LISTENER_PRIVATE_KEY = '_subscriptionsByListener';
+const STORE_UPDATE_EVENT_KEY = 'update';
 
 const actionEmitter = new EventEmitter();
 
